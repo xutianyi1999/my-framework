@@ -71,6 +71,12 @@
       <groupId>org.jooq</groupId>
       <artifactId>jooq</artifactId>
       <version>3.12.3</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>reactive-streams</artifactId>
+          <groupId>org.reactivestreams</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- https://github.com/phxql/argon2-jvm -->

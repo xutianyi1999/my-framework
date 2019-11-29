@@ -1,6 +1,6 @@
 = My-framework
 
-image:https://img.shields.io/badge/vert.x-3.8.3-purple.svg[link="https://vertx.io"]
+image:https://img.shields.io/badge/vert.x-3.8.4-purple.svg[link="https://vertx.io"]
 
 This application was generated using http://start.vertx.io
 
