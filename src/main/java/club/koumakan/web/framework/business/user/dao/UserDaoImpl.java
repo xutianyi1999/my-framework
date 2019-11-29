@@ -20,7 +20,6 @@ import io.vertx.sqlclient.RowSet;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.conf.ParamType;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +34,12 @@ public class UserDaoImpl implements UserDaoProxy {
   private static final PgPool PG_POOL = PgFactory.client();
 
   private static final Function1<Row, JsonObject> ROW_TO_USER_AND_ROLE =
-    row -> Mono.just(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT.apply(row))
-      .map(jsonObject -> new JsonObject()
+    row -> {
+      JsonObject jsonObject = TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT.apply(row);
+      return new JsonObject()
         .put("userInfo", new UserInfo(jsonObject).setId(row.getLong("user_id")).toJson())
-        .put("roleInfo", new RoleInfo(jsonObject).setId(row.getLong("role_id")).toJson())
-      ).block();
+        .put("roleInfo", new RoleInfo(jsonObject).setId(row.getLong("role_id")).toJson());
+    };
 
   private static final Function1<RowSet<Row>, List<JsonObject>> ROW_SET_TO_USER_AND_ROLE_LIST =
     TransformUtils.rowSetToList(ROW_TO_USER_AND_ROLE);
