@@ -68,7 +68,7 @@ public interface TransformUtils {
    * 默认列转换
    */
   Function2<String, Object, Tuple2<String, Object>> DEFAULT_COLUMN_TRANSFORM =
-    (column, value) -> new Tuple2<>(TransformUtils.LOWER_UNDERSCORE_TO_LOWER_CAMEL.apply(column), value);
+    (column, value) -> new Tuple2<>(LOWER_UNDERSCORE_TO_LOWER_CAMEL.apply(column), value);
 
   /**
    * 行转json
@@ -79,7 +79,7 @@ public interface TransformUtils {
       .reduce(new JsonObject(), (jsonObject, tuple) -> jsonObject.put(tuple._1(), tuple._2()))
       .block();
 
-  Function1<Row, JsonObject> DEFAULT_ROW_TO_JSON_OBJECT = TransformUtils.ROW_TO_JSON_OBJECT.apply(TransformUtils.DEFAULT_COLUMN_TRANSFORM);
+  Function1<Row, JsonObject> DEFAULT_ROW_TO_JSON_OBJECT = ROW_TO_JSON_OBJECT.apply(DEFAULT_COLUMN_TRANSFORM);
 
   /**
    * rows转实体类list

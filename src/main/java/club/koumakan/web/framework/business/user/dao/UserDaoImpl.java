@@ -99,6 +99,7 @@ public class UserDaoImpl implements UserDaoProxy {
         .select(ROLE.fields())
         .from(USER).leftJoin(ROLE).on(USER.ROLE_ID.eq(ROLE.ID))
         .where(userInfoCondition(userInfo))
+        .orderBy(USER.ID.desc())
         .limit(offset, pageSize)
         .getSQL(ParamType.INLINED),
       handler

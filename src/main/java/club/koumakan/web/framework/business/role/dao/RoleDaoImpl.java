@@ -22,10 +22,11 @@ public class RoleDaoImpl implements RoleDaoProxy {
   private static final Role ROLE = Role.ROLE;
   private static final PgPool PG_POOL = PgFactory.client();
 
-  private static final Function1<RowSet<Row>, List<RoleInfo>> ROW_SET_TO_ROLE_LIST = TransformUtils.rowSetToList(
-    TransformUtils.rowToEntity(RoleInfo::new).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT)
-  );
+  private static final Function1<Row, RoleInfo> ROW_TO_ENTITY = TransformUtils
+    .rowToEntity(RoleInfo::new)
+    .apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT);
 
+  private static final Function1<RowSet<Row>, List<RoleInfo>> ROW_SET_TO_ROLE_LIST = TransformUtils.rowSetToList(ROW_TO_ENTITY);
   private static final String FIND_ALL_SQL = Constant.CREATE.selectFrom(ROLE).getSQL(ParamType.INLINED);
 
   @Override
@@ -33,6 +34,23 @@ public class RoleDaoImpl implements RoleDaoProxy {
     PG_POOL.query(FIND_ALL_SQL, result -> {
       if (result.succeeded()) {
         handler.handle(Future.succeededFuture(ROW_SET_TO_ROLE_LIST.apply(result.result())));
+      } else {
+        handler.handle(Future.failedFuture(result.cause()));
+      }
+    });
+  }
+
+  @Override
+  public void findById(Long id, Handler<AsyncResult<RoleInfo>> handler) {
+    PG_POOL.query(Constant.CREATE.selectFrom(ROLE).where(ROLE.ID.eq(id)).getSQL(ParamType.INLINED), result -> {
+      if (result.succeeded()) {
+        RowSet<Row> rowSet = result.result();
+
+        if (rowSet.rowCount() == 1) {
+          rowSet.forEach(row -> handler.handle(Future.succeededFuture(ROW_TO_ENTITY.apply(row))));
+        } else {
+          handler.handle(Future.succeededFuture(null));
+        }
       } else {
         handler.handle(Future.failedFuture(result.cause()));
       }
