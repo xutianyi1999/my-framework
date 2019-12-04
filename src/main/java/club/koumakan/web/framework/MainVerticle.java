@@ -21,6 +21,7 @@ import io.vertx.sqlclient.PoolOptions;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class MainVerticle extends AbstractVerticle {
@@ -33,60 +34,61 @@ public class MainVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) {
-    PgFactory.pgPool = initPgPool();
     JWTAuth jwtAuth = initJWTAuth();
-    Router router = initRouter(jwtAuth);
+    FrameworkFactory.pgPool = initPgPool();
+    FrameworkFactory.router = initRouter(jwtAuth);
 
     List<String> filterClassList = List.of(
+      HttpServerVerticle.class.getName(),
       DataDictionaryDaoVerticle.class.getName(),
       MainVerticle.class.getName()
     );
 
+    final Consumer<Class<?>> consumer = clazz -> {
+      try {
+        if (filterClassList.contains(clazz.getName())) {
+          return;
+        }
+
+        Type type = clazz.getGenericSuperclass();
+
+        if (type != null) {
+          if (type.getTypeName().equals(ABSTRACT_VERTICLE)) {
+            vertx.deployVerticle((Class<? extends Verticle>) clazz, DEPLOYMENT_OPTIONS, result -> {
+              if (result.succeeded()) {
+                LOGGER.info("Success in deploying: " + clazz.getName());
+              } else {
+                LOGGER.severe("Error in deploying: " + clazz.getName());
+              }
+            });
+          } else if (type.getTypeName().equals(ABSTRACT_CONTROLLER)) {
+            AbstractController abstractController = (AbstractController) clazz.getConstructor().newInstance();
+            abstractController.init(vertx, FrameworkFactory.router, jwtAuth).execute();
+            LOGGER.info("Controller install: " + clazz.getName());
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    };
+
     vertx.executeBlocking(blockingPromise -> {
       try {
-        ClassScan.execute(clazz -> {
-          try {
-            if (filterClassList.contains(clazz.getName())) {
-              return;
-            }
-
-            Type type = clazz.getGenericSuperclass();
-
-            if (type != null) {
-              if (type.getTypeName().equals(ABSTRACT_VERTICLE)) {
-                vertx.deployVerticle((Class<? extends Verticle>) clazz, DEPLOYMENT_OPTIONS, result -> {
-                  if (result.succeeded()) {
-                    LOGGER.info("Success in deploying: " + clazz.getName());
-                  } else {
-                    LOGGER.severe("Error in deploying: " + clazz.getName());
-                  }
-                });
-              } else if (type.getTypeName().equals(ABSTRACT_CONTROLLER)) {
-                AbstractController abstractController = (AbstractController) clazz.getConstructor().newInstance();
-                abstractController.init(vertx, router, jwtAuth).execute();
-                LOGGER.info("Controller install: " + clazz.getName());
-              }
-            }
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }, "club/koumakan");
-
+        ClassScan.execute(consumer, "club/koumakan");
         blockingPromise.complete();
       } catch (Exception e) {
         blockingPromise.fail(e.getCause());
       }
     }, result -> {
       if (result.succeeded()) {
-        vertx.createHttpServer().requestHandler(router)
-          .listen(8888, http -> {
-            if (http.succeeded()) {
-              startPromise.complete();
-              System.out.println("HTTP server started on port 8888");
-            } else {
-              startPromise.fail(http.cause());
-            }
-          });
+        vertx.deployVerticle(HttpServerVerticle.class, DEPLOYMENT_OPTIONS, r2 -> {
+          if (r2.succeeded()) {
+            startPromise.complete();
+            System.out.println("HTTP server started on port 8888");
+          } else {
+            startPromise.fail(r2.cause());
+          }
+        });
       } else {
         startPromise.fail(result.cause());
       }

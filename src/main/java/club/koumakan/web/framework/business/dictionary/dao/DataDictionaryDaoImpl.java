@@ -1,7 +1,7 @@
 package club.koumakan.web.framework.business.dictionary.dao;
 
 import club.koumakan.web.framework.Constant;
-import club.koumakan.web.framework.PgFactory;
+import club.koumakan.web.framework.FrameworkFactory;
 import club.koumakan.web.framework.business.proxy.dictionary.DataDictionaryInfo;
 import club.koumakan.web.framework.business.proxy.dictionary.DataDictionaryProxy;
 import club.koumakan.web.framework.dsl.tables.DataDictionary;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class DataDictionaryDaoImpl implements DataDictionaryProxy {
 
   private static final DataDictionary DATA_DICTIONARY = DataDictionary.DATA_DICTIONARY;
-  private static final PgPool PG_POOL = PgFactory.client();
+  private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
   private static final Function1<Row, DataDictionaryInfo> ROW_TO_DICTIONARY =
     TransformUtils.rowToEntity(DataDictionaryInfo::new).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT);

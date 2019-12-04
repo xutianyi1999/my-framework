@@ -1,7 +1,7 @@
 package club.koumakan.web.framework.business.role.dao;
 
 import club.koumakan.web.framework.Constant;
-import club.koumakan.web.framework.PgFactory;
+import club.koumakan.web.framework.FrameworkFactory;
 import club.koumakan.web.framework.business.proxy.role.RoleDaoProxy;
 import club.koumakan.web.framework.business.proxy.role.RoleInfo;
 import club.koumakan.web.framework.dsl.tables.Role;
@@ -20,7 +20,7 @@ import java.util.List;
 public class RoleDaoImpl implements RoleDaoProxy {
 
   private static final Role ROLE = Role.ROLE;
-  private static final PgPool PG_POOL = PgFactory.client();
+  private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
   private static final Function1<Row, RoleInfo> ROW_TO_ENTITY = TransformUtils
     .rowToEntity(RoleInfo::new)

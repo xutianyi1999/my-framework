@@ -1,6 +1,6 @@
 package club.koumakan.web.framework.business.user.dao;
 
-import club.koumakan.web.framework.PgFactory;
+import club.koumakan.web.framework.FrameworkFactory;
 import club.koumakan.web.framework.business.proxy.role.RoleInfo;
 import club.koumakan.web.framework.business.proxy.security.SecurityProxy;
 import club.koumakan.web.framework.business.proxy.user.UserDaoProxy;
@@ -31,7 +31,7 @@ public class UserDaoImpl implements UserDaoProxy {
 
   private static final User USER = User.USER;
   private static final Role ROLE = Role.ROLE;
-  private static final PgPool PG_POOL = PgFactory.client();
+  private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
   private static final Function1<Row, JsonObject> ROW_TO_USER_AND_ROLE =
     row -> {

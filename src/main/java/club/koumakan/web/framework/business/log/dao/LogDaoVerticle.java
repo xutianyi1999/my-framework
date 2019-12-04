@@ -1,6 +1,6 @@
 package club.koumakan.web.framework.business.log.dao;
 
-import club.koumakan.web.framework.PgFactory;
+import club.koumakan.web.framework.FrameworkFactory;
 import club.koumakan.web.framework.dsl.tables.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -13,7 +13,7 @@ import io.vertx.pgclient.PgPool;
 public class LogDaoVerticle extends AbstractVerticle {
 
   private static final Log LOG = Log.LOG;
-  private static final PgPool PG_POOL = PgFactory.client();
+  private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
   @Override
   public void start(Promise<Void> startPromise) {

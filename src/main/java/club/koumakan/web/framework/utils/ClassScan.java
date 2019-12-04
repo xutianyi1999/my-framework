@@ -11,7 +11,7 @@ import java.util.jar.JarEntry;
 public class ClassScan {
 
   private static final ClassLoader CLASS_LOADER = ClassLoader.getSystemClassLoader();
-  private static Consumer<Class<?>> matching;
+  private static Consumer<Class<?>> consumer;
 
   private static void installHandler(File file, String parentPath) throws Exception {
     if (file != null && file.exists()) {
@@ -37,14 +37,14 @@ public class ClassScan {
           .replace("\\", ".");
 
         Class<?> clazz = CLASS_LOADER.loadClass(classpath);
-        matching.accept(clazz);
+        consumer.accept(clazz);
       }
     }
   }
 
-  public static void execute(Consumer<Class<?>> matching, String... packageNames) throws Exception {
-    ClassScan.matching = matching;
-    Class handlerScanClass = ClassScan.class;
+  public static void execute(Consumer<Class<?>> consumer, String... packageNames) throws Exception {
+    ClassScan.consumer = consumer;
+    Class<?> handlerScanClass = ClassScan.class;
     URL url = handlerScanClass.getResource("");
 
     if (url.getProtocol().equals("file")) {
@@ -78,7 +78,7 @@ public class ClassScan {
                 .substring(0, jarEntryName.length() - 6)
                 .replace("/", ".")
             );
-            matching.accept(clazz);
+            consumer.accept(clazz);
           }
         }
       }
