@@ -34,7 +34,7 @@ public class User extends TableImpl<UserRecord> {
    * The reference instance of <code>public.user</code>
    */
   public static final User USER = new User();
-  private static final long serialVersionUID = 482590129;
+  private static final long serialVersionUID = -1409585782;
   /**
    * The column <code>public.user.id</code>.
    */
@@ -62,7 +62,7 @@ public class User extends TableImpl<UserRecord> {
   /**
    * The column <code>public.user.status</code>.
    */
-  public final TableField<UserRecord, Short> STATUS = createField(DSL.name("status"), org.jooq.impl.SQLDataType.SMALLINT.nullable(false).defaultValue(org.jooq.impl.DSL.field("1", org.jooq.impl.SQLDataType.SMALLINT)), this, "");
+  public final TableField<UserRecord, String> STATUS = createField(DSL.name("status"), org.jooq.impl.SQLDataType.VARCHAR(2).nullable(false).defaultValue(org.jooq.impl.DSL.field("1", org.jooq.impl.SQLDataType.VARCHAR)), this, "");
 
   /**
    * Create a <code>public.user</code> table reference
@@ -161,7 +161,7 @@ public class User extends TableImpl<UserRecord> {
   // -------------------------------------------------------------------------
 
   @Override
-  public Row7<Long, String, String, String, Long, Long, Short> fieldsRow() {
+  public Row7<Long, String, String, String, Long, Long, String> fieldsRow() {
     return (Row7) super.fieldsRow();
   }
 }

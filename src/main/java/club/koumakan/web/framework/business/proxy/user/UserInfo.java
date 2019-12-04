@@ -17,7 +17,7 @@ public class UserInfo implements JsonEntity {
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
   private String email;
-  private Short status;
+  private String status;
   private Long createTime;
   private Long roleId;
 
@@ -64,11 +64,11 @@ public class UserInfo implements JsonEntity {
     return this;
   }
 
-  public Short getStatus() {
+  public String getStatus() {
     return status;
   }
 
-  public UserInfo setStatus(Short status) {
+  public UserInfo setStatus(String status) {
     this.status = status;
     return this;
   }
