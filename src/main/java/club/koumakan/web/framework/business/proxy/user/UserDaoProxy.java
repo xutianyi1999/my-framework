@@ -22,15 +22,13 @@ public interface UserDaoProxy {
 
   void findUserAndRole(UserInfo userInfo, Handler<AsyncResult<List<JsonObject>>> handler);
 
+  void findUser(UserInfo userInfo, Handler<AsyncResult<List<UserInfo>>> handler);
+
   void save(UserInfo userInfo, Handler<AsyncResult<Long>> handler);
 
   void edit(UserInfo userInfo, Handler<AsyncResult<Void>> handler);
 
   void delete(List<Long> idList, Handler<AsyncResult<Void>> handler);
-
-  void isUsernameExist(String username, Handler<AsyncResult<Boolean>> handler);
-
-  void isEmailExist(String email, Handler<AsyncResult<Boolean>> handler);
 
   void count(UserInfo userInfo, Handler<AsyncResult<Long>> handler);
 }

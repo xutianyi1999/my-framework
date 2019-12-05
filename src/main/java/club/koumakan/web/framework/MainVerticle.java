@@ -35,8 +35,8 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) {
     JWTAuth jwtAuth = initJWTAuth();
-    FrameworkFactory.pgPool = initPgPool();
     FrameworkFactory.router = initRouter(jwtAuth);
+    FrameworkFactory.pgPool = initPgPool();
 
     List<String> filterClassList = List.of(
       HttpServerVerticle.class.getName(),
@@ -44,7 +44,7 @@ public class MainVerticle extends AbstractVerticle {
       MainVerticle.class.getName()
     );
 
-    final Consumer<Class<?>> consumer = clazz -> {
+    Consumer<Class<?>> consumer = clazz -> {
       try {
         if (filterClassList.contains(clazz.getName())) {
           return;
@@ -77,7 +77,7 @@ public class MainVerticle extends AbstractVerticle {
         ClassScan.execute(consumer, "club/koumakan");
         blockingPromise.complete();
       } catch (Exception e) {
-        blockingPromise.fail(e.getCause());
+        blockingPromise.fail(e);
       }
     }, result -> {
       if (result.succeeded()) {

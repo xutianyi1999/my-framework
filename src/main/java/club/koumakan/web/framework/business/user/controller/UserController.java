@@ -123,6 +123,42 @@ public class UserController extends AbstractController {
             response.end(MessageUtils.error());
           }
         });
+      })
+
+      .get("/isUsernameExist", ctx -> {
+        HttpServerResponse response = ctx.response();
+        UserInfo userInfo = MULTI_MAP_TO_ENTITY.apply(ctx.queryParams());
+
+        if (!Strings.isNullOrEmpty(userInfo.getUsername())) {
+//          userDaoProxy.isUsernameExist(userInfo.getUsername(), result -> {
+//            if (result.succeeded()) {
+//              response.end(MessageUtils.success(result.result()));
+//            } else {
+//              result.cause().printStackTrace();
+//              response.end(MessageUtils.error());
+//            }
+//          });
+        } else {
+          response.end(MessageUtils.success(false));
+        }
+      })
+
+      .get("/isEmailExist", ctx -> {
+        HttpServerResponse response = ctx.response();
+        String email = ctx.request().getParam("email");
+
+        if (!Strings.isNullOrEmpty(email)) {
+//          userDaoProxy.isEmailExist(email, result -> {
+//            if (result.succeeded()) {
+//              response.end(MessageUtils.success(result.result()));
+//            } else {
+//              result.cause().printStackTrace();
+//              response.end(MessageUtils.error());
+//            }
+//          });
+        } else {
+          response.end(MessageUtils.success(false));
+        }
       });
   }
 }

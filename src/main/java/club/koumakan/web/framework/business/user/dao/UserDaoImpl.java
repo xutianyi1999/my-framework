@@ -33,16 +33,14 @@ public class UserDaoImpl implements UserDaoProxy {
   private static final Role ROLE = Role.ROLE;
   private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
-  private static final Function1<Row, JsonObject> ROW_TO_USER_AND_ROLE =
-    row -> {
-      JsonObject jsonObject = TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT.apply(row);
-      return new JsonObject()
-        .put("userInfo", new UserInfo(jsonObject).setId(row.getLong("user_id")).toJson())
-        .put("roleInfo", new RoleInfo(jsonObject).setId(row.getLong("role_id")).toJson());
-    };
-
   private static final Function1<RowSet<Row>, List<JsonObject>> ROW_SET_TO_USER_AND_ROLE_LIST =
-    TransformUtils.rowSetToList(ROW_TO_USER_AND_ROLE);
+    TransformUtils.rowSetToList(TransformUtils.rowToEntity(jsonObject -> new JsonObject()
+      .put("userInfo", new UserInfo(jsonObject).setId(jsonObject.getLong("userId")).toJson())
+      .put("roleInfo", new RoleInfo(jsonObject).setId(jsonObject.getLong("roleId")).toJson())
+    ).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT));
+
+  private static final Function1<RowSet<Row>, List<UserInfo>> ROW_SET_TO_USER_INFO_LIST =
+    TransformUtils.rowSetToList(TransformUtils.rowToEntity(UserInfo::new).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT));
 
   private static final Function1<JsonObject, Map<Field<?>, Object>> JSON_OBJECT_TO_USER_FIELD_MAP =
     TransformUtils.JSON_OBJECT_TO_FIELD_MAP.apply(TransformUtils.DEFAULT_KEY_TO_FIELD.apply(USER));
@@ -121,6 +119,11 @@ public class UserDaoImpl implements UserDaoProxy {
   }
 
   @Override
+  public void findUser(UserInfo userInfo, Handler<AsyncResult<List<UserInfo>>> handler) {
+
+  }
+
+  @Override
   public void save(UserInfo userInfo, Handler<AsyncResult<Long>> handler) {
     securityProxy.encrypt(userInfo.getPassword(), args -> {
       if (args.succeeded()) {
@@ -167,27 +170,8 @@ public class UserDaoImpl implements UserDaoProxy {
         } else {
           handler.handle(Future.failedFuture(result.cause()));
         }
-      });
-  }
-
-  private static void exist(Handler<AsyncResult<Boolean>> handler, String sql) {
-    PG_POOL.query(sql, result -> {
-      if (result.succeeded()) {
-        handler.handle(Future.succeededFuture(result.result().rowCount() == 1));
-      } else {
-        handler.handle(Future.failedFuture(result.cause()));
       }
-    });
-  }
-
-  @Override
-  public void isUsernameExist(String username, Handler<AsyncResult<Boolean>> handler) {
-    exist(handler, CREATE.select(USER.USERNAME).from(USER).where(USER.USERNAME.eq(username)).getSQL(ParamType.INLINED));
-  }
-
-  @Override
-  public void isEmailExist(String email, Handler<AsyncResult<Boolean>> handler) {
-    exist(handler, CREATE.select(USER.EMAIL).from(USER).where(USER.EMAIL.eq(email)).getSQL(ParamType.INLINED));
+    );
   }
 
   @Override
