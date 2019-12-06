@@ -1,11 +1,11 @@
 package club.koumakan.web.framework.business.user.controller;
 
-import club.koumakan.web.framework.ReceiveHandler;
 import club.koumakan.web.framework.abstracts.AbstractController;
 import club.koumakan.web.framework.business.proxy.user.UserDaoProxy;
 import club.koumakan.web.framework.business.proxy.user.UserInfo;
 import club.koumakan.web.framework.utils.MessageUtils;
-import club.koumakan.web.framework.utils.TransformUtils;
+import club.koumakan.web.framework.utils.receive.ReceiveHandler;
+import club.koumakan.web.framework.utils.transform.MultiMapTransform;
 import com.google.common.base.Strings;
 import io.vavr.Function1;
 import io.vertx.core.MultiMap;
@@ -23,7 +23,7 @@ public class UserController extends AbstractController {
   private static final Consumer<JsonObject> REMOVE_PASSWORD = jsonObject -> jsonObject.getJsonObject("userInfo").remove("password");
 
   private static final Function1<MultiMap, UserInfo> MULTI_MAP_TO_ENTITY =
-    TransformUtils.multiMapToEntity(jsonObject -> jsonObject.mapTo(UserInfo.class));
+    MultiMapTransform.defaultMultiMapToEntity(jsonObject -> jsonObject.mapTo(UserInfo.class));
 
   @Override
   public void execute() {
@@ -31,7 +31,7 @@ public class UserController extends AbstractController {
 
     ReceiveHandler.receiveHandler(router, "/api/user")
       .get("/list", ctx -> {
-        MultiMap params = ctx.request().params();
+        MultiMap params = ctx.queryParams();
         HttpServerResponse response = ctx.response();
 
         if (params.contains("pageSize") && params.contains("pageIndex")) {
@@ -73,7 +73,7 @@ public class UserController extends AbstractController {
 
       .post("/save", ctx -> {
         HttpServerResponse response = ctx.response();
-        UserInfo userInfo = MULTI_MAP_TO_ENTITY.apply(ctx.request().params());
+        UserInfo userInfo = MULTI_MAP_TO_ENTITY.apply(ctx.queryParams());
 
         if (!Strings.isNullOrEmpty(userInfo.getUsername())
           && !Strings.isNullOrEmpty(userInfo.getPassword())
@@ -95,7 +95,7 @@ public class UserController extends AbstractController {
 
       .post("/edit", ctx -> {
         HttpServerResponse response = ctx.response();
-        UserInfo userInfo = MULTI_MAP_TO_ENTITY.apply(ctx.request().params());
+        UserInfo userInfo = MULTI_MAP_TO_ENTITY.apply(ctx.queryParams());
 
         if (userInfo.getId() != null && Strings.isNullOrEmpty(userInfo.getPassword())) {
           userDaoProxy.edit(userInfo, result -> {
@@ -125,40 +125,18 @@ public class UserController extends AbstractController {
         });
       })
 
-      .get("/isUsernameExist", ctx -> {
+      .get("/findUser", ctx -> {
         HttpServerResponse response = ctx.response();
         UserInfo userInfo = MULTI_MAP_TO_ENTITY.apply(ctx.queryParams());
 
-        if (!Strings.isNullOrEmpty(userInfo.getUsername())) {
-//          userDaoProxy.isUsernameExist(userInfo.getUsername(), result -> {
-//            if (result.succeeded()) {
-//              response.end(MessageUtils.success(result.result()));
-//            } else {
-//              result.cause().printStackTrace();
-//              response.end(MessageUtils.error());
-//            }
-//          });
-        } else {
-          response.end(MessageUtils.success(false));
-        }
-      })
+        userDaoProxy.findUser(userInfo, result -> {
+          if (result.succeeded()) {
 
-      .get("/isEmailExist", ctx -> {
-        HttpServerResponse response = ctx.response();
-        String email = ctx.request().getParam("email");
-
-        if (!Strings.isNullOrEmpty(email)) {
-//          userDaoProxy.isEmailExist(email, result -> {
-//            if (result.succeeded()) {
-//              response.end(MessageUtils.success(result.result()));
-//            } else {
-//              result.cause().printStackTrace();
-//              response.end(MessageUtils.error());
-//            }
-//          });
-        } else {
-          response.end(MessageUtils.success(false));
-        }
+          } else {
+            result.cause().printStackTrace();
+            response.end(MessageUtils.error());
+          }
+        });
       });
   }
 }

@@ -7,7 +7,8 @@ import club.koumakan.web.framework.business.proxy.user.UserDaoProxy;
 import club.koumakan.web.framework.business.proxy.user.UserInfo;
 import club.koumakan.web.framework.dsl.tables.Role;
 import club.koumakan.web.framework.dsl.tables.User;
-import club.koumakan.web.framework.utils.TransformUtils;
+import club.koumakan.web.framework.utils.transform.FieldTransform;
+import club.koumakan.web.framework.utils.transform.RowTransform;
 import com.google.common.collect.Lists;
 import io.vavr.Function1;
 import io.vertx.core.AsyncResult;
@@ -34,16 +35,16 @@ public class UserDaoImpl implements UserDaoProxy {
   private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
   private static final Function1<RowSet<Row>, List<JsonObject>> ROW_SET_TO_USER_AND_ROLE_LIST =
-    TransformUtils.rowSetToList(TransformUtils.rowToEntity(jsonObject -> new JsonObject()
+    RowTransform.rowSetToList(RowTransform.defaultRowToEntity(jsonObject -> new JsonObject()
       .put("userInfo", new UserInfo(jsonObject).setId(jsonObject.getLong("userId")).toJson())
       .put("roleInfo", new RoleInfo(jsonObject).setId(jsonObject.getLong("roleId")).toJson())
-    ).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT));
+    ));
 
   private static final Function1<RowSet<Row>, List<UserInfo>> ROW_SET_TO_USER_INFO_LIST =
-    TransformUtils.rowSetToList(TransformUtils.rowToEntity(UserInfo::new).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT));
+    RowTransform.rowSetToList(RowTransform.defaultRowToEntity(UserInfo::new));
 
   private static final Function1<JsonObject, Map<Field<?>, Object>> JSON_OBJECT_TO_USER_FIELD_MAP =
-    TransformUtils.JSON_OBJECT_TO_FIELD_MAP.apply(TransformUtils.DEFAULT_KEY_TO_FIELD.apply(USER));
+    FieldTransform.DEFAULT_JSON_OBJECT_TO_FIELD_MAP.apply(USER);
 
   private final SecurityProxy securityProxy;
 
@@ -120,7 +121,13 @@ public class UserDaoImpl implements UserDaoProxy {
 
   @Override
   public void findUser(UserInfo userInfo, Handler<AsyncResult<List<UserInfo>>> handler) {
-
+    PG_POOL.query(CREATE.selectFrom(USER).where(userInfoCondition(userInfo)).getSQL(ParamType.INLINED), result -> {
+      if (result.succeeded()) {
+        handler.handle(Future.succeededFuture(ROW_SET_TO_USER_INFO_LIST.apply(result.result())));
+      } else {
+        handler.handle(Future.failedFuture(result.cause()));
+      }
+    });
   }
 
   @Override

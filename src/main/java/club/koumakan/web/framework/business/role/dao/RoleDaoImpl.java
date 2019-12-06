@@ -5,7 +5,7 @@ import club.koumakan.web.framework.FrameworkFactory;
 import club.koumakan.web.framework.business.proxy.role.RoleDaoProxy;
 import club.koumakan.web.framework.business.proxy.role.RoleInfo;
 import club.koumakan.web.framework.dsl.tables.Role;
-import club.koumakan.web.framework.utils.TransformUtils;
+import club.koumakan.web.framework.utils.transform.RowTransform;
 import io.vavr.Function1;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -22,11 +22,8 @@ public class RoleDaoImpl implements RoleDaoProxy {
   private static final Role ROLE = Role.ROLE;
   private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
-  private static final Function1<Row, RoleInfo> ROW_TO_ENTITY = TransformUtils
-    .rowToEntity(RoleInfo::new)
-    .apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT);
-
-  private static final Function1<RowSet<Row>, List<RoleInfo>> ROW_SET_TO_ROLE_LIST = TransformUtils.rowSetToList(ROW_TO_ENTITY);
+  private static final Function1<Row, RoleInfo> ROW_TO_ENTITY = RowTransform.defaultRowToEntity(RoleInfo::new);
+  private static final Function1<RowSet<Row>, List<RoleInfo>> ROW_SET_TO_ROLE_LIST = RowTransform.rowSetToList(ROW_TO_ENTITY);
   private static final String FIND_ALL_SQL = Constant.CREATE.selectFrom(ROLE).getSQL(ParamType.INLINED);
 
   @Override

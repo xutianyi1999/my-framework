@@ -1,8 +1,9 @@
-package club.koumakan.web.framework;
+package club.koumakan.web.framework.utils.receive;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vavr.Function1;
+import io.vavr.Function2;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -16,8 +17,8 @@ public class ReceiveHandler {
     HttpHeaderValues.APPLICATION_JSON.toString() + "; charset=utf-8"
   );
 
-  private static final Function1<Map<String, String>, Function1<Handler<RoutingContext>, Handler<RoutingContext>>> SET_RESPONSE_HEADERS =
-    httpHeaders -> requestHandler -> routingContext -> {
+  private static final Function2<Map<String, String>, Handler<RoutingContext>, Handler<RoutingContext>> SET_RESPONSE_HEADERS =
+    (httpHeaders, requestHandler) -> routingContext -> {
       httpHeaders.forEach(routingContext.response()::putHeader);
       requestHandler.handle(routingContext);
     };

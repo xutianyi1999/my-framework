@@ -1,9 +1,9 @@
 package club.koumakan.web.framework.business.role.controller;
 
-import club.koumakan.web.framework.ReceiveHandler;
 import club.koumakan.web.framework.abstracts.AbstractController;
 import club.koumakan.web.framework.business.proxy.role.RoleDaoProxy;
 import club.koumakan.web.framework.utils.MessageUtils;
+import club.koumakan.web.framework.utils.receive.ReceiveHandler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 

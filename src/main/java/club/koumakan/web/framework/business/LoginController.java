@@ -1,13 +1,13 @@
 package club.koumakan.web.framework.business;
 
-import club.koumakan.web.framework.ReceiveHandler;
 import club.koumakan.web.framework.abstracts.AbstractController;
 import club.koumakan.web.framework.business.proxy.security.SecurityProxy;
 import club.koumakan.web.framework.business.proxy.user.UserDaoProxy;
 import club.koumakan.web.framework.business.proxy.user.UserInfo;
 import club.koumakan.web.framework.throwable.LoginException;
 import club.koumakan.web.framework.utils.MessageUtils;
-import club.koumakan.web.framework.utils.TransformUtils;
+import club.koumakan.web.framework.utils.receive.ReceiveHandler;
+import club.koumakan.web.framework.utils.transform.MultiMapTransform;
 import com.google.common.base.Strings;
 import io.vavr.Function1;
 import io.vertx.core.MultiMap;
@@ -22,7 +22,7 @@ public class LoginController extends AbstractController {
 
   private static final String USER_DAO = "userDao";
   private static final String SECURITY = "security";
-  private static final Function1<MultiMap, UserInfo> MULTI_MAP_TO_USER = TransformUtils.multiMapToEntity(UserInfo::new);
+  private static final Function1<MultiMap, UserInfo> MULTI_MAP_TO_USER = MultiMapTransform.defaultMultiMapToEntity(UserInfo::new);
 
   @Override
   public void execute() {

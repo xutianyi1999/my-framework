@@ -5,7 +5,8 @@ import club.koumakan.web.framework.FrameworkFactory;
 import club.koumakan.web.framework.business.proxy.dictionary.DataDictionaryInfo;
 import club.koumakan.web.framework.business.proxy.dictionary.DataDictionaryProxy;
 import club.koumakan.web.framework.dsl.tables.DataDictionary;
-import club.koumakan.web.framework.utils.TransformUtils;
+import club.koumakan.web.framework.utils.transform.FieldTransform;
+import club.koumakan.web.framework.utils.transform.RowTransform;
 import io.vavr.Function1;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -26,13 +27,13 @@ public class DataDictionaryDaoImpl implements DataDictionaryProxy {
   private static final PgPool PG_POOL = FrameworkFactory.pgPool();
 
   private static final Function1<Row, DataDictionaryInfo> ROW_TO_DICTIONARY =
-    TransformUtils.rowToEntity(DataDictionaryInfo::new).apply(TransformUtils.DEFAULT_ROW_TO_JSON_OBJECT);
+    RowTransform.defaultRowToEntity(DataDictionaryInfo::new);
 
   private static final Function1<RowSet<Row>, List<DataDictionaryInfo>> ROW_SET_TO_LIST =
-    TransformUtils.rowSetToList(ROW_TO_DICTIONARY);
+    RowTransform.rowSetToList(ROW_TO_DICTIONARY);
 
   private static final Function1<JsonObject, Map<Field<?>, Object>> JSON_OBJECT_TO_SQL_MAP =
-    TransformUtils.JSON_OBJECT_TO_FIELD_MAP.apply(TransformUtils.DEFAULT_KEY_TO_FIELD.apply(DATA_DICTIONARY));
+    FieldTransform.DEFAULT_JSON_OBJECT_TO_FIELD_MAP.apply(DATA_DICTIONARY);
 
 
   @Override
