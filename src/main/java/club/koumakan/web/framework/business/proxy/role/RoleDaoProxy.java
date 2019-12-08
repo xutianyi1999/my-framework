@@ -16,8 +16,6 @@ public interface RoleDaoProxy {
 
   void findAll(Handler<AsyncResult<List<RoleInfo>>> handler);
 
-  void findById(Long id, Handler<AsyncResult<RoleInfo>> handler);
-
   void save(RoleInfo roleInfo, Handler<AsyncResult<Long>> handler);
 
   void edit(RoleInfo roleInfo, Handler<AsyncResult<Void>> handler);

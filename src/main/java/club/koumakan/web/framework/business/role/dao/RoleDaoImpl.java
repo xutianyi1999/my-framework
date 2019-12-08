@@ -38,23 +38,6 @@ public class RoleDaoImpl implements RoleDaoProxy {
   }
 
   @Override
-  public void findById(Long id, Handler<AsyncResult<RoleInfo>> handler) {
-    PG_POOL.query(Constant.CREATE.selectFrom(ROLE).where(ROLE.ID.eq(id)).getSQL(ParamType.INLINED), result -> {
-      if (result.succeeded()) {
-        RowSet<Row> rowSet = result.result();
-
-        if (rowSet.rowCount() == 1) {
-          rowSet.forEach(row -> handler.handle(Future.succeededFuture(ROW_TO_ENTITY.apply(row))));
-        } else {
-          handler.handle(Future.succeededFuture(null));
-        }
-      } else {
-        handler.handle(Future.failedFuture(result.cause()));
-      }
-    });
-  }
-
-  @Override
   public void save(RoleInfo roleInfo, Handler<AsyncResult<Long>> handler) {
 
   }

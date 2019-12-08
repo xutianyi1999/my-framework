@@ -30,7 +30,7 @@ public class UserController extends AbstractController {
     final UserDaoProxy userDaoProxy = UserDaoProxy.createProxy(vertx, USER_DAO);
 
     ReceiveHandler.receiveHandler(router, "/api/user")
-      .get("/list", ctx -> {
+      .get("/page", ctx -> {
         MultiMap params = ctx.queryParams();
         HttpServerResponse response = ctx.response();
 
@@ -131,7 +131,7 @@ public class UserController extends AbstractController {
 
         userDaoProxy.findUser(userInfo, result -> {
           if (result.succeeded()) {
-
+            response.end(MessageUtils.success(result.result()));
           } else {
             result.cause().printStackTrace();
             response.end(MessageUtils.error());
